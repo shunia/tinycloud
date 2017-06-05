@@ -1,0 +1,22 @@
+{
+  "name": "tinecloud-public-service",
+  "version": "1.0.0",
+  "description": "none",
+  "main": "index.js",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shunia/tinycloud.git"
+  },
+  "author": "Shunia Huang <shunia@qq.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/shunia/tinycloud/issues"
+  },
+  "homepage": "https://github.com/shunia/tinycloud#readme",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3"
+  }
+}
