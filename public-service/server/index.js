@@ -22,49 +22,38 @@ const path = require('path');
 const router = express.Router();
 const modsPath = path.resolve(__dirname, 'mods');
 fs.readdir(modsPath, function (err, files) {
-    if (!err && !!files && files.length > 0) {
-        for (var i = 0; i > files.length; i++) {
+    if (!!err) {
+        console.log('ERR:', 'load mods fail');
+    } else {
+        for (var i = 0; i < files.length; i++) {
             var filePath = path.resolve(modsPath, files[i]);
+            // console.log(filePath);
             if (!fs.existsSync(filePath)) {
                 console.log('ERR:', filePath, 'not exist!');
                 continue;
             }
-            if (!fs.accessSync(filePath)) {
-                console.log('ERR:', filePath, 'not accessible!');
-                continue;
-            }
+            // if (!fs.accessSync(filePath)) {
+            //     console.log('ERR:', filePath, 'not accessible!');
+            //     continue;
+            // }
+            // console.log(fs.statSync(filePath));
             if (fs.statSync(filePath).isDirectory() == true && fs.existsSync(path.resolve(filePath, 'router.js'))) {
                 // 成功定位文件
                 var mod = require(path.resolve(filePath, 'router.js'));
-                router.
+                for (var postKey in mod.post) {
+                    console.log('reg post:', postKey);
+                    router.post('/' + postKey, mod.post[postKey]);
+                }
+                for (var getKey in mod.get) {
+                    console.log('reg get:', getKey);
+                    router.get('/' + getKey, mod.get[getKey]);
+                }
             }
         }    
-    } else {
-        console.log('ERR:', 'load mods fail');
     }
 });
+app.use(router);
 
-var data = [],
-    pending = [];
-
-app.get('/get', function (req, res) {
-    var result = pending.concat();
-    data = data.concat(pending);
-    pending.length = 0;
-
-    console.log('get:', result);
-    res.send({ code: 200, data: result });
+app.listen(6883, '0.0.0.0', function () {
+    console.log('Server started:', '0.0.0.0:6883');
 });
-
-app.post('/set', function (req, res) {
-    var data = req.body.data;
-
-    console.log('set:', data);
-
-    if (!!data && data.length > 0) {
-        pending = pending.concat(data);
-    }
-    res.send({ code: 200});
-});
-
-app.listen(6883);

@@ -1,49 +1,69 @@
-var request = require('request');
+// 注册节点,连接服务
+var auth = require('./auth');
+auth.register(function (err, res) {
+    if (!!err) {
+        console.log('auth failure, exit');
+    } else if (res.code == 200) {
+        console.log('auth success');
+        next();
+    } else {
+        console.log('auth result:', res);
+        if (res.code == 1001) {
+            // 重复注册,也允许逻辑运行
+            console.log('auth success');
+            next();
+        }
+    }
+});
 
-var interval = 1000 * 10;
-var intervalId = -1;
-var lastReq;
-
-function start() {
-    var self = this;
-    get.apply(self);
-    intervalId = setInterval(function () {
-        get.apply(self);
-    }, interval);
+function next() {
+    // monitor
+    monitor();
+    registerPlugins();
+    startServer('0.0.0.0', 3001);
 }
 
-function get() {
-    if (!!lastReq) {
-        lastReq.abort();
-    }
-    console.log('get start');
-    lastReq = request.get('http://api.tinycloud.com:6883/get', function (error, response, body) {
-        if (!error && !!body) {
-            lastReq = null;
+function monitor() {
+    // prevent the process from closing instantly
+    process.stdin.resume();
 
-            console.log('req:', body);
-
-            if (body.code == 200) {
-                update.apply(this, [body.data]);
-            }    
-        }
+    // 监听退出事件,准备触发逻辑
+    var nodeCleanUp = require('node-cleanup');
+    nodeCleanUp(function (exitCode, signal) {
+        console.log(exitCode, signal);
     });
 }
 
-function update(tasks) {
-    var isArr = tasks instanceof Array;
-    if (!isArr) {
-        console.log('update:', '[Format Error] Data is not Array');
-    } else {
-        if (tasks.length == 0) {
-            console.log('update:', 'no new tasks');
-        } else {
-            console.log('update:', tasks.length + ' new tasks:');
-            for (var i = 0; i < tasks.length; i++) {
-                console.log('  ', tasks[i].count);
-            }
-        }    
+var plugin = require('./plugin/plugin.js');
+function registerPlugins() {
+    // 注册插件
+    var fs = require('fs'),
+        path = require('path'),
+        pluginFolder = path.resolve(__dirname, 'plugins');
+    var files = fs.readdirSync(pluginFolder);
+    if (!!files && files.length > 0) {
+        for (var i = 0; i < files.length; i++) {
+            var p = require(path.resolve(pluginFolder, files[i]));
+            plugin.enable(plugin.register(p));
+        }
     }
 }
 
-start();
+
+function startServer(host, port) {
+    // 启动服务
+    var express = require('express');
+    var app = express();
+
+    app.use('/', function (req, res) {
+        plugin.receive(req, res, function (handled) {
+            if (!handled) {
+                // 其他逻辑处理
+            }
+        });
+    });
+
+    app.listen(port, host, function () {
+        console.log('Server started:', host + ':' + port);
+    });
+}

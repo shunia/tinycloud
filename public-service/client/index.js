@@ -3,7 +3,7 @@ var url = 'http://localhost:6883';
 var count = 0;
 
 App.prototype.get = function (callback) {
-    $.get(url + '/get', null, function (result) {
+    $.get(url + '/download.list', null, function (result) {
         console.log('get:', result);
         if (!!result && result.code == 200) {
             if (!!callback) callback.apply(null, [result.data]);
@@ -30,7 +30,10 @@ function updateList(data) {
 
         var li;
         for (var i = 0; i < data.length; i++) {
-            li = $('<li>' + data[i].count + '</li>');
+            var li = $('<li></li>');
+            for (var key in data[i]) {
+                li.append('<p>' + key + ':' + data[i][key] + '</p>');
+            }
             $('#list').append(li);
         }
     }
