@@ -1,19 +1,22 @@
 <template>
-    <div id="app">
-        <nav-header></nav-header>
-        <router-view></router-view>
-    </div>
+    <nav-header></nav-header>
+    <router-view name="page"></router-view>
 </template>
 
 <script>
-import NodeList from './nodeList.vue';
+import NodesList from './nodeList.vue';
 import NavHeader from './navHeader.vue';
+
+let routes = [];
+routes.concat(NavHeader.routes);
+routes.concat(NodesList.routes);
 
 export default {
     components: {
-        NodeList, 
+        NodesList, 
         NavHeader
-    }
+    }, 
+    routes
 }
 </script>
 

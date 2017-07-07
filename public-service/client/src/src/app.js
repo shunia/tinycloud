@@ -7,20 +7,16 @@ Vue.use(VueRouter);
 Vue.config.debug = true;
 
 var router = new VueRouter({
-    routes: [
-        { path: '/', component: App }
-    ]
+    routes: App.routes
 });
 
 var app = new Vue({
     el: '#container',
-    router,
+    router: router,
     data: {
         // nodes: ['321']
     },
-    components: {
-        App
-    }
+    render: h => h(App)
 });
 
 // NodeList.data = ['my-node-1'];

@@ -2,17 +2,48 @@
     <div id="nav-header">
         <ul>
             <li v-for="(n, index) in navs">
-                <router-link to="/node-list">{{ n }}</router-link>
+                <router-link :to="'/' + n.link">{{ n.text }}</router-link>
             </li>
         </ul>
     </div>
 </template>
 
 <script>
+import NodesList from './nodeList.vue';
+
+let navs = [{
+    text: '列表',
+    link: '/node-list'
+}, {
+    text: '配置',
+    link: '/config'
+}];
+
+let routes = [];
+navs.forEach(function (nav) {
+    routes.push({
+        path: nav.link, 
+        components: {
+            
+        }
+    })
+});
+
 export default {
     data: function() {
         return {
-            navs: ['列表', '配置']
+            navs: [{
+                text: '列表', 
+                link: '/node-list'
+            }, { 
+                text: '配置',
+                link: '/config'
+            }]
+        }
+    }, 
+    methods: {
+        linkTo:function(index) {
+            return this.navs[index].link
         }
     }
 }
@@ -47,7 +78,7 @@ export default {
         padding: 2px 10px;
     }
 
-    li .router-link .active {
+    li .router-link-active {
         color: #ffffff;
         background: #cccccc;
         text-decoration: none;

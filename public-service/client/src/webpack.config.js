@@ -2,17 +2,21 @@ var path = require('path')
 var webpack = require('webpack')
 
 module.exports = {
-    entry: './src/app.js',
+    entry: {
+        app: './src/app.js',
+        vue: 'vue',
+        'vue-router': 'vue-router'
+    },
     resolve: {
         alias: {
-            vue: path.resolve(__dirname, 'libs', 'vue.js'), 
-            'vue-router': path.resolve(__dirname, 'libs', 'vue-router.js'),
+            Vue: path.resolve(__dirname, 'libs', 'vue.js'), 
+            VueRouter: path.resolve(__dirname, 'libs', 'vue-router.js'),
         }
     },
     output: {
         path: path.resolve(__dirname, './dist'),
         publicPath: '/dist/',
-        filename: 'app.js'
+        filename: '[name].js'
     },
     module: {
         rules: [
@@ -52,6 +56,12 @@ if (process.env.NODE_ENV === 'production') {
             'process.env': {
                 NODE_ENV: '"production"'
             }
+        }),
+        new webpack.optimize.CommonsChunkPlugin({
+            names: ['vue', 'vue-router']
+        }),
+        new webpack.optimize.CommonsChunkPlugin({
+            name: 'common'
         }),
         new webpack.optimize.UglifyJsPlugin({
             sourceMap: true,
