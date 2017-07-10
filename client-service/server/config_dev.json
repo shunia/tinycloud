@@ -1,0 +1,7 @@
+{
+    "name": "my-node-1",
+    "token": "123456!-09342",
+    "api": "http://api.tinycloud.com:6883/",
+    "host": "127.0.0.1", 
+    "port": 3001
+}

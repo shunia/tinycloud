@@ -1,19 +1,38 @@
 var auth = exports = module.exports = {};
 
+var api = '';
+var token = '';
+var name = '';
+
 var request = require('request');
-const api = 'http://api.tinycloud.com:6883/';
 
 var p = auth;
+p.session = '';
 
 p.grabNodeInfo = function () {
     return {
-        token: '123456', 
-        name: 'my-node-1'
+        token: token, 
+        name: name
     }
 }
 
 p.register = function (next) {
+    var env = process.env['tiny_cloud_client'];
+    token = env['token'];
+    name = env['name'];
+    api = env['api'];
+
     request.post({ url: api + 'node.register', json: true, form: this.grabNodeInfo() },
+        function (err, res, body) {
+            p.session = body.session;
+
+            next(err, body);
+        }
+    );
+}
+
+p.notify = function () {
+    request.post({ url: api + 'node.notify', json: true, form: {session: p.session} },
         function (err, res, body) {
             next(err, body);
         }
@@ -21,9 +40,9 @@ p.register = function (next) {
 }
 
 p.offline = function () {
-    request.post({ url: api + 'node.offline', form: this.grabNodeInfo(), json: true },
+    request.post({ url: api + 'node.offline', form: { session: p.session }, json: true },
         function (err, res, body) {
-            next(err, JSON.parse(body));
+            next(err, body);
         }
     );
 }

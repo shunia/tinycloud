@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ type: '*/*' }));
 
-app.disable('x-powered-by')
+app.disable('x-powered-by');
 
 // Access Control
 app.use(function (req, res, next) {
